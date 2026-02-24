@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채용공고 정리 대시보드</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --border-color: #334155;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .warning-banner {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        select, button, input {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        button {
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover { opacity: 0.8; }
+
+        .btn-refresh { background: var(--accent-color); color: var(--bg-color); border: none; }
+        .btn-toggle-d3 { background: transparent; border: 1px solid var(--warning-color); color: var(--warning-color); }
+        .btn-toggle-d3.active { background: var(--warning-color); color: var(--bg-color); }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .d-day-badge {
+            font-weight: bold;
+            color: var(--warning-color);
+        }
+
+        .d-day-urgent { color: var(--danger-color); }
+
+        .memo-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            padding: 2px 0;
+        }
+
+        .memo-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-color);
+        }
+
+        a { color: var(--accent-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        #loading { text-align: center; padding: 2rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+
+    <div class="warning-banner">
+        ⚠️ 테스트용(로그인 없음). Supabase RLS 비활성화 상태에서만 동작. 링크 공유 금지.
+    </div>
+
+    <header>
+        <h1>채용공고 대시보드</h1>
+        <div class="controls">
+            <button id="toggle-d3" class="btn-toggle-d3">임박(D-3) 보기</button>
+            <select id="filter-status">
+                <option value="all">모든 상태</option>
+                <option value="대기">대기</option>
+                <option value="지원완료">지원완료</option>
+                <option value="서류통과">서류통과</option>
+                <option value="최종합격">최종합격</option>
+                <option value="불합격">불합격</option>
+            </select>
+            <button id="refresh" class="btn-refresh">새로고침</button>
+        </div>
+    </header>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>회사</th>
+                    <th>공고명</th>
+                    <th>마감일</th>
+                    <th>D-day</th>
+                    <th>상태</th>
+                    <th>메모</th>
+                    <th>링크</th>
+                </tr>
+            </thead>
+            <tbody id="job-list">
+                <!-- Data will be injected here -->
+            </tbody>
+        </table>
+        <div id="loading">데이터를 불러오는 중...</div>
+    </div>
+
+    <!-- 환경변수 주입 (배포 시 Cloudflare Pages 등에서 이 부분을 채워주세요) -->
+    <script>
+        window.__ENV__ = {
+            SUPABASE_URL: "YOUR_SUPABASE_URL",
+            SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY"
+        };
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
